@@ -15,10 +15,10 @@ class Main:
 
     def log_config(self):
         logger = logging.getLogger()
-        logger.setLevel(logging.DEBUG)
+        logger.setLevel(logging.INFO)
 
         fh = logging.FileHandler("clean_data.log", "w")
-        fh.setLevel(logging.DEBUG)
+        fh.setLevel(logging.INFO)
         logger.addHandler(fh)
 
         sh = logging.StreamHandler()
@@ -28,53 +28,49 @@ class Main:
     def clean_data(self):
         logging.info(f"loading dataframe")
         # select only columns of interest
-        self.df_numeric = self.df[['caseid_new', 'ppagecat', 'ppincimp']]
-        print(self.df_numeric.head())
+        self.df_numeric = self.df[['caseid_new', 'ppagecat', 'ppincimp']].rename({'caseid_new':'id',
+                                                                                  'ppagecat':'age',
+                                                                                  'ppincimp':'income'}, axis=1)
         self.df_categorical = self.df[['ppgender', 'ppeducat', 'ppwork',
                                        'pppartyid3', 'ppreg9',
                                        'ppmarit', 'q24_met_online',
-                                       'relationship_quality']]
-        print(self.df_categorical.head())
-        # encode categorical
+                                       'relationship_quality']].rename(columns={'ppgender':'gender', 'ppeducat':'educ',
+            'ppwork':'job_status', 'pppartyid3':'political_aff', 'ppreg9': 'region', 'ppmarit':'marital_status',
+            'q24_met_online': 'met_online' })
         self.df_numeric_encoded = pd.get_dummies(self.df_numeric)
-        print(self.df_numeric_encoded)
         self.df_categorical_encoded = pd.get_dummies(self.df_categorical)
-        print(self.df_categorical_encoded)
-
+        print(self.df_categorical_encoded.head())
+        print(self.df_numeric_encoded.head())
+        print(self.df_categorical_encoded.describe())
+        print(self.df_numeric_encoded.describe())
         # cleaning null
         print(self.df_categorical.isnull().sum())
+        print(self.df_numeric.isnull().sum())
 
 
     def viz(self):
-        pass
-        # test normalization
-        # print(self.clean_df.isnull().sum())
-        # self.clean_df = self.clean_df.dropna(how='any', axis=0)
-        # print(self.clean_df.isnull().sum())
-        # fig, axs = plt.subplots(figsize=(6, 7))
-        # plt.xlabel('Gender', ha='center')
-        # plt.ylabel('Values', ha='center')
-        # plt.xticks(ha='center')
-        # plt.title('Gender Population')
-        # axs.legend()
-        # plt.bar(x=['female', 'male'], height=self.clean_df['gender'].value_counts())
-        # plt.show()
+        # Visualize gender representative
+        female_count = self.df_categorical_encoded['gender_female'].value_counts()[self.df_categorical_encoded['gender_female']==1].values[0]
+        male_count = self.df_categorical_encoded['gender_female'].value_counts()[self.df_categorical_encoded['gender_female']==1].values[1]
+        gender = pd.DataFrame({'gender': ['female', 'male'], 'count': [female_count, male_count]})
+        sns.barplot(x='gender', y='count', data=gender, hue='gender')
+        plt.show()
 
-        # sns.regplot(x=self.encoded_df['age'], y=self.encoded_df['income'], data=self.df_orig_short)
-        # plt.tight_layout()
-        # plt.show()
-
-
-
+        # Visualize political representative
+        democrat_count = self.df_categorical_encoded['political_aff_democrat'].value_counts()[1]
+        republican_count = self.df_categorical_encoded['political_aff_republican'].value_counts()[1]
+        other_count = self.df_categorical_encoded['political_aff_other'].value_counts()[1]
+        party_aff = pd.DataFrame({'political_party': ['democrat', 'republican', 'other'], 'count': [democrat_count, republican_count, other_count]})
+        sns.barplot(x='political_party', y='count', data=party_aff, hue='political_party')
+        plt.xlabel('Political Party Affiliation')
+        plt.ylabel('Count')
+        plt.title('Political Party Affiliation Representation')
+        plt.legend()
+        plt.show()
 
 
-
-def main():
+if __name__ == '__main__':
     m = Main()
     m.log_config()
     m.clean_data()
     m.viz()
-
-
-if __name__ == '__main__':
-    main()
