@@ -31,9 +31,9 @@ class Main:
     def clean_data(self):
         logging.info(f"loading dataframe")
         # select only columns of interest
-        self.df_numeric = self.df[['caseid_new', 'ppage', 'hhinc']].rename(
-            {'caseid_new': 'id', 'ppage': 'age', 'hhinc': 'income'}, axis=1)
-        self.df_categorical = self.df[['ppgender', 'ppagecat', 'ppeducat', 'ppincimp', 'ppwork',
+        self.df_numeric = self.df[['caseid_new', 'ppage', 'ppagecat', 'hhinc']].rename(
+            {'caseid_new': 'id', 'ppage': 'age', 'ppagecat':'cat_age', 'hhinc': 'income'}, axis=1)
+        self.df_categorical = self.df[['ppgender' , 'ppeducat', 'ppincimp', 'ppwork',
                                        'pppartyid3', 'ppreg9', 'ppmarit', 'q24_met_online',
                                        'relationship_quality']].rename(
             columns={'ppgender': 'gender', 'ppagecat': 'agecat', 'ppeducat': 'educ', 'ppincimp': "incomecat",
@@ -88,8 +88,10 @@ class Main:
         # income, pivot_tables, regplot, avg age vs income, missing data?
 
     def age(self):
-        age_col_df = self.df_numeric_encoded.iloc[2:, :8]
+        age_col_df = self.df_numeric_encoded.iloc[2:, :10]
         age_col_df.drop(labels='id', axis=1, inplace=True)
+        age_col_df.drop(labels='age', axis=1, inplace=True)
+        age_col_df.drop(labels='income', axis=1, inplace=True)
         count_df = pd.DataFrame({'count': age_col_df.sum()})
         count_df.rename(index={'cat_age_18-24': '18-24', 'cat_age_25-34': '25-34',
                                'cat_age_35-44': '35-44', 'cat_age_45-54': '45-54',
@@ -113,4 +115,3 @@ if __name__ == '__main__':
     m.pivot()
     m.age()
     # m.pair()
-    m.pivot()
