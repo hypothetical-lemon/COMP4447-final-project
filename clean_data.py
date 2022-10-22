@@ -3,6 +3,8 @@ import logging
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+import statsmodels.api as sm
+
 
 
 class Main:
@@ -51,16 +53,17 @@ class Main:
         # print(self.df_categorical.isnull().sum())
         # print(self.df_numeric.isnull().sum())
 
-    def viz(self):
+    def gender(self):
         # Visualize gender representative
         female_count = self.df_categorical_encoded['gender_female'].value_counts()[
             self.df_categorical_encoded['gender_female'] == 1].values[0]
         male_count = self.df_categorical_encoded['gender_female'].value_counts()[
             self.df_categorical_encoded['gender_female'] == 1].values[1]
         gender = pd.DataFrame({'gender': ['female', 'male'], 'count': [female_count, male_count]})
-        sns.barplot(x='gender', y='count', data=gender, palette="hls")
+        sns.barplot(x='gender', y='count', data=gender, palette='hls')
         plt.show()
 
+    def political(self):
         # Visualize political representative
         democrat_count = self.df_categorical_encoded['political_aff_democrat'].value_counts()[1]
         republican_count = self.df_categorical_encoded['political_aff_republican'].value_counts()[1]
@@ -84,10 +87,37 @@ class Main:
         t3 = full_df.pivot_table(values=["id"], index=["political_aff", "age"], aggfunc='count')
         print(t3)
 
+        # interesting question, what season or month did you meet your significant other?
+        #TODO: viz of map/region, pull month met data, pairpolt, (ggqqplot) normalize plot for numeric values
+        # income, pivot_tables, regplot, avg age vs income, missing data?
+
+    def age(self):
+        age_col_df = self.df_numeric_encoded.iloc[2:, :8]
+        age_col_df.drop(labels='id', axis=1, inplace=True)
+        count_df = pd.DataFrame({'count':  age_col_df.sum()})
+        count_df.rename(index={'cat_age_18-24':'18-24','cat_age_25-34':'25-34',
+                               'cat_age_35-44':'35-44','cat_age_45-54':'45-54',
+                               'cat_age_55-64':'55-64','cat_age_65-74':'65-74',
+                               'cat_age_75+':'75+'}, inplace=True)
+        count_df.reset_index(inplace=True)
+        count_df.rename(columns={'index': 'age'}, inplace=True)
+        sns.barplot(x='age', y='count', data=count_df, palette='hls')
+        plt.show()
+
+
+    def pair(self):
+        sns.pairplot(self.df_numeric_encoded)
+
+
+
 
 if __name__ == '__main__':
     m = Main()
     m.log_config()
     m.clean_data()
-    m.viz()
+    m.gender()
+    m.political()
+    m.pivot()
+    m.age()
+    # m.pair()
     m.pivot()
