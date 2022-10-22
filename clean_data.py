@@ -4,10 +4,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import statsmodels.api as sm
-<<<<<<< HEAD
-=======
-
->>>>>>> fd23c713b7d966eee881100e56848a97569f3689
 
 
 class Main:
@@ -106,29 +102,6 @@ class Main:
 
     def pair(self):
         sns.pairplot(self.df_numeric_encoded)
-
-        # interesting question, what season or month did you meet your significant other?
-        #TODO: viz of map/region, pull month met data, pairpolt, (ggqqplot) normalize plot for numeric values
-        # income, pivot_tables, regplot, avg age vs income, missing data?
-
-    def age(self):
-        age_col_df = self.df_numeric_encoded.iloc[2:, :8]
-        age_col_df.drop(labels='id', axis=1, inplace=True)
-        count_df = pd.DataFrame({'count':  age_col_df.sum()})
-        count_df.rename(index={'cat_age_18-24':'18-24','cat_age_25-34':'25-34',
-                               'cat_age_35-44':'35-44','cat_age_45-54':'45-54',
-                               'cat_age_55-64':'55-64','cat_age_65-74':'65-74',
-                               'cat_age_75+':'75+'}, inplace=True)
-        count_df.reset_index(inplace=True)
-        count_df.rename(columns={'index': 'age'}, inplace=True)
-        sns.barplot(x='age', y='count', data=count_df, palette='hls')
-        plt.show()
-
-
-    def pair(self):
-        sns.pairplot(self.df_numeric_encoded)
-
-
 
 
 if __name__ == '__main__':
