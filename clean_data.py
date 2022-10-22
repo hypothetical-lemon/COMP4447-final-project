@@ -6,6 +6,7 @@ import numpy as np
 import statsmodels.api as sm
 
 
+
 class Main:
 
     def __init__(self):
@@ -119,3 +120,4 @@ if __name__ == '__main__':
     m.pivot()
     m.age()
     # m.pair()
+    m.pivot()
