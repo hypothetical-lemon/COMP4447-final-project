@@ -91,9 +91,8 @@ class Main:
         # income, pivot_tables, regplot, avg age vs income, missing data?
 
     def age(self):
-        age_col_df = self.df_numeric_encoded.iloc[2:, :9]
+        age_col_df = self.df_numeric_encoded.iloc[2:, :8]
         age_col_df.drop(labels='id', axis=1, inplace=True)
-        age_col_df.drop(labels='age', axis=1, inplace=True)
         count_df = pd.DataFrame({'count':  age_col_df.sum()})
         count_df.rename(index={'cat_age_18-24':'18-24','cat_age_25-34':'25-34',
                                'cat_age_35-44':'35-44','cat_age_45-54':'45-54',
@@ -116,7 +115,7 @@ if __name__ == '__main__':
     m.log_config()
     m.clean_data()
     m.gender()
-    m.poltical()
+    m.political()
     m.pivot()
     m.age()
     # m.pair()
