@@ -36,7 +36,7 @@ class Main:
     def clean_data(self):
         logging.info(f"loading dataframe")
         # select only columns of interest
-        self.df_numeric = self.df[['caseid_new', 'ppagecat', 'ppincimp']].rename({'caseid_new': 'id',
+        self.df_numeric = self.df[['caseid_new', 'ppage', 'ppagecat', 'hhinc']].rename(
             {'caseid_new': 'id', 'ppage': 'age', 'ppagecat':'cat_age', 'papreligion':'religion'}, axis=1)
         self.df_categorical = self.df[['ppgender' , 'ppeducat', 'ppincimp', 'ppwork',
                                        'pppartyid3', 'ppreg9', 'ppmarit', 'q24_met_online', 'papreligion',
