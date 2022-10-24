@@ -6,7 +6,6 @@ import numpy as np
 import statsmodels.api as sm
 
 
-
 class Main:
 
     def __init__(self):
@@ -90,7 +89,7 @@ class Main:
         print(t1)
 
         # interesting question, what season or month did you meet your significant other?
-        #TODO: viz of map/region, pull month met data, pairpolt, (ggqqplot) normalize plot for numeric values
+        # TODO: viz of map/region, pull month met data, pairpolt, (ggqqplot) normalize plot for numeric values
         # income, pivot_tables, regplot, avg age vs income, missing data?
 
     def age(self):
@@ -115,8 +114,6 @@ class Main:
         sns.relplot(x='age', y='hhinc', kind='line', data=self.df_numeric)
         # sns.pairplot(self.df_numeric, x_vars=['age'], y_vars=['hhinc'], palette='hls', hue='hhinc', height=5)
         plt.show()
-
-
 
 
 if __name__ == '__main__':
