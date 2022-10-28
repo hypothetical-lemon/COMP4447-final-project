@@ -5,16 +5,27 @@ import seaborn as sns
 import numpy as np
 import statsmodels.api as sm
 
+pd.options.display.max_columns = None
 
 class Main:
 
     def __init__(self):
-        self.df = pd.read_csv("HCMST.csv", low_memory=False)
-        logging.info("loading csv as dataframe")
+        logging.debug("loading .csv file as dataframe 1")
+        self.df1 = pd.read_csv("HCMST.csv", low_memory=False)
+        logging.debug("grab only the columns that are unique to csv")
+        self.df1 = self.df1[['caseid_new', 'hhinc', 'pppartyid3', 'relationship_quality',
+                             'q24_met_online', 'papreligion']].copy()
+        logging.debug("loading .dta file as dataframe 2")
+        self.df2 = pd.read_stata('HCMST2017.dta')
+        logging.debug("merging dataframes")
+        self.full_df = pd.concat([self.df1, self.df2], axis=1)
+
         self.df_numeric = pd.DataFrame()
         self.df_numeric_encoded = pd.DataFrame()
         self.df_categorical = pd.DataFrame()
         self.df_categorical_encoded = pd.DataFrame()
+
+
 
     def log_config(self) -> None:
         """
@@ -23,7 +34,7 @@ class Main:
         """
         logger = logging.getLogger()
         logger.setLevel(logging.ERROR)
-        #TODO remove in final ipynb submission
+        # TODO remove in final ipynb submission
         fh = logging.FileHandler("clean_data.log", "w")
         fh.setLevel(logging.INFO)
         logger.addHandler(fh)
@@ -33,16 +44,19 @@ class Main:
         logger.addHandler(sh)
 
     def clean_data(self):
-        logging.info(f"loading dataframe")
+        logging.debug("paring down full dataframe into relevant columns")
         # select only columns of interest
-        self.df_numeric = self.df[['caseid_new', 'ppage', 'ppagecat', 'hhinc']].rename(
-            {'caseid_new': 'id', 'ppage': 'age', 'ppagecat':'cat_age', 'papreligion':'religion'}, axis=1)
-        self.df_categorical = self.df[['ppgender' , 'ppeducat', 'ppincimp', 'ppwork',
+        self.df_numeric = self.full_df[['CASEID_NEW', 'ppage', 'ppagecat', 'hhinc']].rename(
+            {'CASEID_NEW': 'id', 'PPAGE': 'age', 'PPAGECAT': 'cat_age', 'papreligion': 'religion'}, axis=1)
+
+        self.df_categorical = self.full_df[['ppgender', 'ppeducat', 'ppincimp', 'ppwork',
                                        'pppartyid3', 'ppreg9', 'ppmarit', 'q24_met_online', 'papreligion',
                                        'relationship_quality']].rename(
             columns={'ppgender': 'gender', 'ppagecat': 'agecat', 'ppeducat': 'educ', 'ppincimp': "incomecat",
-                     'ppwork': 'job_status', 'pppartyid3': 'political_aff', 'ppreg9': 'region', 'papreligion':'religion', 'w6_otherdate_app_2': 'app_used',
+                     'ppwork': 'job_status', 'PARTYID7': 'political_aff', 'ppreg9': 'region',
+                     'papreligion': 'religion', 'w6_otherdate_app_2': 'app_used',
                      'ppmarit': 'marital_status', 'q24_met_online': 'met_online'})
+
         self.df_numeric['hhinc'] = self.df_numeric['hhinc'].astype(int)
         self.df_numeric_encoded = pd.get_dummies(self.df_numeric)
         self.df_categorical_encoded = pd.get_dummies(self.df_categorical)
@@ -50,16 +64,16 @@ class Main:
         # print(self.df_numeric_encoded.head())
         # print(self.df_categorical_encoded.describe())
         # print(self.df_numeric_encoded.describe())
-        # cleaning null
+        # cleaning nulls
         # print(self.df_categorical.isnull().sum())
         # print(self.df_numeric.isnull().sum())
-        print(self.df_numeric.dtypes)
+        # print(self.df_numeric.dtypes)
+        # print(self.df_categorical.dtypes)
+
     def gender(self):
         # Visualize gender representative
-        female_count = self.df_categorical_encoded['gender_female'].value_counts()[
-            self.df_categorical_encoded['gender_female'] == 1].values[0]
-        male_count = self.df_categorical_encoded['gender_female'].value_counts()[
-            self.df_categorical_encoded['gender_female'] == 1].values[1]
+        female_count = self.df_categorical['gender'].value_counts()['Female']
+        male_count = self.df_categorical['gender'].value_counts()['Male']
         gender = pd.DataFrame({'gender': ['female', 'male'], 'count': [female_count, male_count]})
         sns.barplot(x='gender', y='count', data=gender, palette='hls')
         plt.show()
