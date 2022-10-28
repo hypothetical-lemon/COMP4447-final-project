@@ -26,7 +26,6 @@ class Main:
         self.df_categorical_encoded = pd.DataFrame()
 
 
-
     def log_config(self) -> None:
         """
         setup logging config
@@ -47,13 +46,13 @@ class Main:
         logging.debug("paring down full dataframe into relevant columns")
         # select only columns of interest
         self.df_numeric = self.full_df[['CASEID_NEW', 'ppage', 'ppagecat', 'hhinc']].rename(
-            {'CASEID_NEW': 'id', 'PPAGE': 'age', 'PPAGECAT': 'cat_age', 'papreligion': 'religion'}, axis=1)
+            {'CASEID_NEW': 'id', 'ppage': 'age', 'ppagecat': 'cat_age', 'papreligion': 'religion'}, axis=1)
 
         self.df_categorical = self.full_df[['ppgender', 'ppeducat', 'ppincimp', 'ppwork',
                                        'pppartyid3', 'ppreg9', 'ppmarit', 'q24_met_online', 'papreligion',
                                        'relationship_quality']].rename(
             columns={'ppgender': 'gender', 'ppagecat': 'agecat', 'ppeducat': 'educ', 'ppincimp': "incomecat",
-                     'ppwork': 'job_status', 'PARTYID7': 'political_aff', 'ppreg9': 'region',
+                     'ppwork': 'job_status', 'pppartyid3': 'political_aff', 'ppreg9': 'region',
                      'papreligion': 'religion', 'w6_otherdate_app_2': 'app_used',
                      'ppmarit': 'marital_status', 'q24_met_online': 'met_online'})
 
@@ -67,8 +66,8 @@ class Main:
         # cleaning nulls
         # print(self.df_categorical.isnull().sum())
         # print(self.df_numeric.isnull().sum())
-        # print(self.df_numeric.dtypes)
-        # print(self.df_categorical.dtypes)
+        print(self.df_numeric.dtypes)
+        print(self.df_categorical.dtypes)
 
     def gender(self):
         # Visualize gender representative
@@ -94,12 +93,12 @@ class Main:
 
     def pivot(self):
         logging.info("creating pivot tables")
-        full_df = pd.concat([self.df_numeric, self.df_categorical], axis=1)
-        t1 = full_df.pivot_table(values=["hhinc"], index=["region"], aggfunc=np.mean)
+        big_df = pd.concat([self.df_numeric, self.df_categorical], axis=1)
+        t1 = big_df.pivot_table(values=["hhinc"], index=["region"], aggfunc=np.mean)
         # print(t1)
-        t2 = full_df.pivot_table(values=["id"], index=["marital_status", "met_online"], aggfunc='count')
+        t2 = big_df.pivot_table(values=["id"], index=["marital_status", "met_online"], aggfunc='count')
         # print(t2)
-        t3 = full_df.pivot_table(values=["id"], index=["political_aff", "age"], aggfunc='count')
+        t3 = big_df.pivot_table(values=["id"], index=["political_aff", "cat_age"], aggfunc='count')
         print(t1)
 
         # interesting question, what season or month did you meet your significant other?
