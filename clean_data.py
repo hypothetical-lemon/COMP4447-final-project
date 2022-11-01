@@ -5,9 +5,12 @@ import seaborn as sns
 import numpy as np
 import statsmodels.api as sm
 import scipy
-pd.options.display.max_columns = None
 import warnings
+
+pd.options.display.max_columns = None
 warnings.filterwarnings("ignore")
+
+
 class Main:
 
     def __init__(self):
@@ -25,7 +28,6 @@ class Main:
         self.df_numeric_encoded = pd.DataFrame()
         self.df_categorical = pd.DataFrame()
         self.df_categorical_encoded = pd.DataFrame()
-
 
     def log_config(self) -> None:
         """
@@ -46,8 +48,8 @@ class Main:
     def clean_data(self):
         logging.debug("paring down full dataframe into relevant columns")
         # select only columns of interest
-        self.df_numeric = self.full_df[['ppage', 'ppagecat', 'hhinc']].rename(
-            {'ppage': 'age', 'ppagecat': 'cat_age'}, axis=1)
+        self.df_numeric = self.full_df[['ppage', 'ppagecat', 'hhinc', 'Q21A_Month']].rename(
+            {'ppage': 'age', 'ppagecat': 'cat_age', 'Q21A_Month':'month_met'}, axis=1)
 
         self.df_categorical = self.full_df[['ppgender', 'ppeducat', 'ppincimp',
                                             'ppwork', 'pppartyid3', 'ppreg9',
@@ -100,19 +102,11 @@ class Main:
         plt.legend()
         plt.show()
 
-    def pivot(self):
-        logging.info("creating pivot tables")
+    def income_pivot(self):
+        logging.info("creating pivot table")
         big_df = pd.concat([self.df_numeric, self.df_categorical], axis=1)
         t1 = big_df.pivot_table(values=["hhinc"], index=["region"], aggfunc=np.mean)
-        # print(t1)
-        t2 = big_df.pivot_table(values=["id"], index=["marital_status", "met_online"], aggfunc='count')
-        # print(t2)
-        t3 = big_df.pivot_table(values=["id"], index=["political_aff", "cat_age"], aggfunc='count')
-        print(t1)
-
-        # interesting question, what season or month did you meet your significant other?
-        # TODO: viz of map/region, pull month met data, pairpolt, (ggqqplot) normalize plot for numeric values
-        # income, pivot_tables, regplot, avg age vs income, missing data?
+        print("Average Household Income by Region", "\n", t1)
 
     def age(self):
         age_col_df = self.df_numeric_encoded.iloc[2:, :10]
@@ -153,6 +147,19 @@ class Main:
         sm.qqplot(data=self.df_categorical['political_aff'], line='45')
         plt.show()
 
+    def month_met(self):
+        months=['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+        counts = []
+        for m in months:
+            count = self.df_numeric['month_met'].value_counts()[m]
+            counts.append(count)
+        month_df = pd.DataFrame({'month': months, 'count': counts})
+        p = sns.barplot(x='month', y='count', data=month_df, palette='hls')
+        p.set(xlabel='Month', ylabel='Count', title='Month That Couples Met')
+        p.tick_params(axis='x', rotation=45)
+        plt.show()
+
+
 if __name__ == '__main__':
     m = Main()
     m.log_config()
@@ -160,9 +167,10 @@ if __name__ == '__main__':
     # general stats EDA
     m.gender()
     m.political()
-    # m.pivot()
-    # m.age()
-    # m.pair()
+    m.income_pivot()
+    m.age()
+    m.pair()
     m.ols()
     m.shapiro()
     m.qqplot()
+    m.month_met()
